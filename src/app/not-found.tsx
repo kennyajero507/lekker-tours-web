@@ -1,12 +1,16 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { getSettings } from '@/lib/settings';
+import { resolveBranding } from '@/lib/branding';
 
-export default function NotFound() {
+export default async function NotFound() {
+  const { siteName, logoUrl } = resolveBranding(await getSettings());
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-forest-950 px-4 text-center">
       <Image
-        src="/logo.png"
-        alt="Lekker Tours and Travel"
+        src={logoUrl}
+        alt={siteName}
         width={96}
         height={96}
         className="mb-8 h-24 w-24 object-contain"

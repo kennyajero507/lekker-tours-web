@@ -105,7 +105,7 @@ src/
 | **Testimonials** | Full CRUD with star ratings and featured flag. |
 | **FAQs** | Full CRUD, grouped and ordered. |
 | **Enquiries** | Inbox for both form types. Opening marks as read; status can be moved through the workflow. |
-| **Site settings** | Edits the homepage hero, the values strip, the full contact block, social links, footer text and default SEO, so nothing on the landing page is hardcoded. |
+| **Site settings** | Tabbed editor for the site name, logos and favicon, the announcement bar, the About, Services and Contact page copy and banners, the homepage hero, the values strip, the full contact block, social links, footer text and default SEO, so nothing on the landing page is hardcoded. |
 
 Images can be entered as a path already in this repo (`/images/…`) or uploaded from the browser;
 uploads are stored and served by the API, not by this app.

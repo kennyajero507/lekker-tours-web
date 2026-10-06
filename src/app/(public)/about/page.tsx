@@ -5,11 +5,13 @@ import { SectionHeading } from '@/components/ui/SectionHeading';
 import { ButtonLink } from '@/components/ui/Button';
 import { Reveal } from '@/components/ui/Reveal';
 import { getSettings } from '@/lib/settings';
+import { DEFAULT_ABOUT_PAGE } from '@/lib/siteContent';
+import { sanitizeHtml, RICH_TEXT_CLASSES } from '@/lib/sanitizeHtml';
 
 export const metadata: Metadata = {
   title: 'About Us',
   description:
-    'Lekker Tours and Travels is a Kenya-based tours and travel company creating memorable, well-planned journeys for individuals, families, groups, organisations and international visitors.',
+    'Lekker Tours and Travel is a Kenya-based tours and travel company creating memorable, well-planned journeys for individuals, families, groups, organisations and international visitors.',
 };
 
 /**
@@ -46,15 +48,27 @@ const WHY_LEKKER = [
 
 export default async function AboutPage() {
   const settings = await getSettings();
+  const about = settings.aboutPage;
+
+  const bannerTitle = about.title || DEFAULT_ABOUT_PAGE.title;
+  const bannerImage = about.heroImageUrl || DEFAULT_ABOUT_PAGE.heroImageUrl;
+  // The API sanitises this on save and on read. It is run through the same
+  // allowlist once more here, because this is the line that injects markup.
+  const storyHtml = sanitizeHtml(about.storyHtml);
 
   return (
     <>
       <PageBanner
-        title="About Lekker Tours and Travels"
-        subtitle="Explore • Discover • Experience"
+        title={bannerTitle}
+        subtitle={about.subtitle}
         image={{
-          url: '/images/maasai-warriors-landscape.jpg',
-          alt: 'Guides walking out across open savanna at golden hour',
+          url: bannerImage,
+          // The stock description only fits the stock photo. An uploaded image
+          // has no description of its own, so the page title stands in.
+          alt:
+            bannerImage === DEFAULT_ABOUT_PAGE.heroImageUrl
+              ? 'Guides walking out across open savanna at golden hour'
+              : bannerTitle,
         }}
         crumbs={[
           { href: '/', label: 'Home' },
@@ -71,25 +85,42 @@ export default async function AboutPage() {
             <h2 className="mb-6 text-3xl leading-tight md:text-4xl">
               Making travel simple, enjoyable and memorable
             </h2>
-            <div className="space-y-5 text-base leading-relaxed text-muted">
-              <p>
-                Lekker Tours and Travels is a Kenya-based tours and travel company focused on making
-                travel simple, enjoyable and memorable. We design and coordinate travel experiences
-                that connect people with Kenya’s wildlife, landscapes, beaches, culture and cities,
-                while also supporting practical travel needs.
-              </p>
-              <p>
-                Our approach combines personal service, practical planning and flexible travel
-                solutions. Whether a client is looking for a weekend safari, a family holiday, a
-                group excursion, a beach escape, an airport transfer or a tailor-made itinerary, our
-                goal is to provide one dependable point of contact from planning to completion.
-              </p>
-              <p>
-                We serve both the domestic and international market, with Kenya as our core
-                destination and East Africa as a natural area for expansion. Our office is at{' '}
-                {settings.contact.addressLine} in {settings.contact.city}.
-              </p>
-            </div>
+            {storyHtml ? (
+              <div className={RICH_TEXT_CLASSES} dangerouslySetInnerHTML={{ __html: storyHtml }} />
+            ) : (
+              <div className="space-y-5 text-base leading-relaxed text-muted">
+                <p>
+                  Lekker Tours and Travel is a Kenya-based tours and travel company focused on making
+                  travel simple, enjoyable and memorable. We design and coordinate travel experiences
+                  that connect people with Kenya’s wildlife, landscapes, beaches, culture and cities,
+                  while also supporting practical travel needs.
+                </p>
+                <p>
+                  Our approach combines personal service, practical planning and flexible travel
+                  solutions. Whether a client is looking for a weekend safari, a family holiday, a
+                  group excursion, a beach escape, an airport transfer or a tailor-made itinerary, our
+                  goal is to provide one dependable point of contact from planning to completion.
+                </p>
+                <p>
+                  We serve both the domestic and international market, with Kenya as our core
+                  destination and East Africa as a natural area for expansion. Our office is at{' '}
+                  {settings.contact.addressLine} in {settings.contact.city}.
+                </p>
+              </div>
+            )}
+
+            {about.stats.length > 0 ? (
+              <dl className="mt-9 grid grid-cols-2 gap-x-6 gap-y-5 border-t border-sand-200 pt-7 sm:grid-cols-3">
+                {about.stats.map((stat, i) => (
+                  <div key={`${stat.label}-${i}`} className="flex flex-col-reverse">
+                    <dt className="mt-1 text-xs uppercase tracking-[0.16em] text-muted">
+                      {stat.label}
+                    </dt>
+                    <dd className="font-display text-3xl text-forest-900">{stat.value}</dd>
+                  </div>
+                ))}
+              </dl>
+            ) : null}
 
             <div className="mt-9 flex flex-wrap gap-3">
               <ButtonLink href="/services">Our services</ButtonLink>
@@ -128,9 +159,7 @@ export default async function AboutPage() {
             <article className="h-full rounded-card border border-sand-200 bg-sand-50 p-8">
               <p className="mb-3 text-xs uppercase tracking-[0.28em] text-amber-600">Our vision</p>
               <p className="text-base leading-relaxed text-muted">
-                To become a trusted and customer-focused travel company known for memorable
-                experiences, dependable service and meaningful connections across Kenya and East
-                Africa.
+                {about.visionStatement || DEFAULT_ABOUT_PAGE.visionStatement}
               </p>
             </article>
           </Reveal>
@@ -138,9 +167,7 @@ export default async function AboutPage() {
             <article className="h-full rounded-card border border-sand-200 bg-sand-50 p-8">
               <p className="mb-3 text-xs uppercase tracking-[0.28em] text-amber-600">Our mission</p>
               <p className="text-base leading-relaxed text-muted">
-                To design and coordinate accessible, enjoyable and well-organised travel experiences
-                by combining local destination knowledge, responsive customer service and carefully
-                selected travel partners.
+                {about.missionStatement || DEFAULT_ABOUT_PAGE.missionStatement}
               </p>
             </article>
           </Reveal>

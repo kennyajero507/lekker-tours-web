@@ -3,6 +3,7 @@ import { PageBanner } from '@/components/ui/PageBanner';
 import { ContactForm } from '@/components/contact/ContactForm';
 import { getSettings } from '@/lib/settings';
 import { telHref, whatsappHref, secondaryNumber } from '@/lib/format';
+import { DEFAULT_CONTACT_PAGE, isAllowedMapEmbed } from '@/lib/siteContent';
 
 export const metadata: Metadata = {
   title: 'Start Your Journey',
@@ -11,17 +12,42 @@ export const metadata: Metadata = {
 };
 
 export default async function ContactPage() {
-  const { contact } = await getSettings();
+  const { contact, contactPage } = await getSettings();
   const secondNumber = secondaryNumber(contact.phone, contact.whatsapp);
+
+  // Each contact-page field overrides the site-wide one here only; blank
+  // defers to it, so the header and footer keep showing the main details.
+  const email = contactPage.inquiryEmail || contact.email;
+  const hours = contactPage.workingHours || contact.supportHours;
+  const customAddress = contactPage.address
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+  const addressLines = customAddress.length
+    ? customAddress
+    : [contact.addressLine, contact.poBox, contact.city].filter((line): line is string =>
+        Boolean(line)
+      );
+  const mapQuery = customAddress.length
+    ? customAddress.join(', ')
+    : `${contact.addressLine}, ${contact.city}`;
+  const mapEmbedUrl = isAllowedMapEmbed(contactPage.mapEmbedUrl) ? contactPage.mapEmbedUrl : '';
+
+  const bannerTitle = contactPage.inquiryHeadline || DEFAULT_CONTACT_PAGE.inquiryHeadline;
+  const bannerImage = contactPage.bannerImageUrl || DEFAULT_CONTACT_PAGE.bannerImageUrl;
 
   return (
     <>
       <PageBanner
-        title="Start Your Journey"
-        subtitle="From the first enquiry to the final sunset of your tour, our Nairobi specialists are ready to craft your expedition."
+        title={bannerTitle}
+        subtitle={contactPage.inquiryIntro}
         image={{
-          url: '/images/balloon-mara-dawn.jpg',
-          alt: 'Balloons drifting over the plains at first light',
+          url: bannerImage,
+          // The stock description only fits the stock photo.
+          alt:
+            bannerImage === DEFAULT_CONTACT_PAGE.bannerImageUrl
+              ? 'Balloons drifting over the plains at first light'
+              : bannerTitle,
         }}
         crumbs={[
           { href: '/', label: 'Home' },
@@ -69,10 +95,10 @@ export default async function ContactPage() {
                   </dt>
                   <dd>
                     <a
-                      href={`mailto:${contact.email}`}
+                      href={`mailto:${email}`}
                       className="break-all text-sand-50 transition-colors hover:text-amber-400"
                     >
-                      {contact.email}
+                      {email}
                     </a>
                   </dd>
                 </div>
@@ -81,7 +107,7 @@ export default async function ContactPage() {
                   <dt className="mb-1 text-[0.65rem] uppercase tracking-[0.2em] text-amber-400">
                     Office hours
                   </dt>
-                  <dd className="text-sand-200/80">{contact.supportHours}</dd>
+                  <dd className="text-sand-200/80">{hours}</dd>
                 </div>
               </dl>
 
@@ -100,18 +126,28 @@ export default async function ContactPage() {
             <div className="rounded-card border border-sand-200 bg-white p-7">
               <h2 className="mb-1 text-xl">The heart of Nairobi</h2>
               <p className="mb-5 text-sm leading-relaxed text-muted">
-                Visit us at {contact.addressLine} for a personal consultation.
+                Visit us at {addressLines[0]} for a personal consultation.
               </p>
 
               <address className="space-y-1 text-sm not-italic leading-relaxed text-ink">
-                <p>{contact.addressLine}</p>
-                {contact.poBox ? <p>{contact.poBox}</p> : null}
-                <p>{contact.city}</p>
+                {addressLines.map((line) => (
+                  <p key={line}>{line}</p>
+                ))}
               </address>
+
+              {mapEmbedUrl ? (
+                <iframe
+                  src={mapEmbedUrl}
+                  title="Map showing our office"
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="mt-5 h-56 w-full rounded-lg border-0"
+                />
+              ) : null}
 
               <a
                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                  `${contact.addressLine}, ${contact.city}`
+                  mapQuery
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"

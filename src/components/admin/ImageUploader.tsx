@@ -35,6 +35,8 @@ export function ImageUploader({
   required = false,
   name,
   error: externalError,
+  hideAlt = false,
+  contain = false,
 }: {
   label: string;
   value?: ImageValue;
@@ -43,6 +45,10 @@ export function ImageUploader({
   /** Lets a form error summary focus this control. */
   name?: string;
   error?: string;
+  /** For images whose alt text comes from elsewhere, such as the site logo. */
+  hideAlt?: boolean;
+  /** Preview the whole image instead of cropping it to fill, for logos. */
+  contain?: boolean;
 }) {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -146,7 +152,7 @@ export function ImageUploader({
               alt={value.alt || ''}
               fill
               sizes="176px"
-              className="object-cover"
+              className={contain ? 'object-contain p-3' : 'object-cover'}
             />
           ) : null}
 
@@ -198,21 +204,23 @@ export function ImageUploader({
         </div>
 
         <div className="min-w-0 flex-1 space-y-2">
-          <div>
-            <label htmlFor={`${inputId}-alt`} className="mb-1 block text-xs text-muted">
-              Alt text {required ? '*' : null}
-            </label>
-            {/* Spread the existing value so editing one field never drops the
-                others, notably caption, which has no input of its own here. */}
-            <input
-              id={`${inputId}-alt`}
-              type="text"
-              value={value?.alt ?? ''}
-              onChange={(e) => onChange({ ...value, url: value?.url ?? '', alt: e.target.value })}
-              placeholder="Describe the image for screen readers"
-              className="w-full rounded-lg border border-sand-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
-            />
-          </div>
+          {hideAlt ? null : (
+            <div>
+              <label htmlFor={`${inputId}-alt`} className="mb-1 block text-xs text-muted">
+                Alt text {required ? '*' : null}
+              </label>
+              {/* Spread the existing value so editing one field never drops the
+                  others, notably caption, which has no input of its own here. */}
+              <input
+                id={`${inputId}-alt`}
+                type="text"
+                value={value?.alt ?? ''}
+                onChange={(e) => onChange({ ...value, url: value?.url ?? '', alt: e.target.value })}
+                placeholder="Describe the image for screen readers"
+                className="w-full rounded-lg border border-sand-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none"
+              />
+            </div>
+          )}
 
           {showUrl || (value?.url && !ownUploads.includes(value.url)) ? (
             <div>

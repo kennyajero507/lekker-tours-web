@@ -1,5 +1,15 @@
 import { apiGet } from './api';
 import { TAGS } from './tags';
+import { DEFAULT_BRANDING } from './branding';
+import {
+  DEFAULT_ABOUT_PAGE,
+  DEFAULT_BANNER,
+  DEFAULT_CONTACT_PAGE,
+  DEFAULT_FOOTER,
+  DEFAULT_HERO_SLIDES,
+  DEFAULT_SERVICES_PAGE,
+  withSettingsDefaults,
+} from './siteContent';
 import type { SiteSettings } from '@/types';
 
 /**
@@ -7,6 +17,12 @@ import type { SiteSettings } from '@/types';
  * with correct contact details rather than collapsing into an error page.
  */
 const FALLBACK: SiteSettings = {
+  branding: DEFAULT_BRANDING,
+  aboutPage: DEFAULT_ABOUT_PAGE,
+  servicesPage: DEFAULT_SERVICES_PAGE,
+  contactPage: DEFAULT_CONTACT_PAGE,
+  banner: DEFAULT_BANNER,
+  footer: DEFAULT_FOOTER,
   hero: {
     title: 'Feel the Pulse of the African Wilderness',
     subtitle:
@@ -17,6 +33,7 @@ const FALLBACK: SiteSettings = {
     },
     primaryCta: { label: 'Explore Expeditions', href: '/tours' },
     secondaryCta: { label: 'Plan My Trip', href: '/contact' },
+    slides: DEFAULT_HERO_SLIDES,
   },
   values: [],
   contact: {
@@ -47,7 +64,9 @@ const FALLBACK: SiteSettings = {
 
 export async function getSettings(): Promise<SiteSettings> {
   try {
-    return await apiGet<SiteSettings>('/api/settings', { tags: [TAGS.settings] });
+    return withSettingsDefaults(
+      await apiGet<SiteSettings>('/api/settings', { tags: [TAGS.settings] })
+    );
   } catch (err) {
     console.error('[settings] falling back to defaults:', (err as Error).message);
     return FALLBACK;

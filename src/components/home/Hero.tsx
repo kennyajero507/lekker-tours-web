@@ -6,22 +6,24 @@ import type { SiteSettings } from '@/types';
  * Left-aligned copy over a crossfading full-bleed background, sized so the
  * section below is visible without scrolling far.
  *
- * Slide one is whatever an administrator set in Site Settings, so the hero
- * stays content-managed; the rest are a curated set behind it.
+ * Slide one is the background image set in Site Settings and the rest are the
+ * slides set beside it, so the whole rotation is content-managed.
  */
-const ROTATION = [
-  { url: '/images/mara-lions-stalking.jpg', alt: 'Lions moving through long grass in the Maasai Mara' },
-  { url: '/images/amboseli-elephant-kilimanjaro.jpg', alt: 'An elephant on the savanna with Kilimanjaro behind' },
-  { url: '/images/balloon-mara-sunrise.jpg', alt: 'Hot air balloons rising over the plains at sunrise' },
-  { url: '/images/serengeti-zebra-wildebeest.jpg', alt: 'Zebra and wildebeest grazing across open grassland' },
-];
-
 export function Hero({ hero, socials }: { hero: SiteSettings['hero']; socials?: SiteSettings['socials'] }) {
   const links = Object.entries(socials ?? {}).filter(([, url]) => Boolean(url));
 
+  // Blank and repeated URLs are dropped: next/image throws on an empty src,
+  // and the slideshow keys each slide by its URL.
+  const seen = new Set<string>([hero.backgroundImage.url]);
+  const rotation = (hero.slides ?? []).filter((slide) => {
+    if (!slide.url || seen.has(slide.url)) return false;
+    seen.add(slide.url);
+    return true;
+  });
+
   const slides = [
     { url: hero.backgroundImage.url, alt: hero.backgroundImage.alt },
-    ...ROTATION.filter((slide) => slide.url !== hero.backgroundImage.url),
+    ...rotation.map((slide) => ({ url: slide.url, alt: slide.alt ?? '' })),
   ];
 
   return (

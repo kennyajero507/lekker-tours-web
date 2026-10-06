@@ -133,13 +133,78 @@ export interface Faq {
   status: Status;
 }
 
+export interface SiteBranding {
+  siteName: string;
+  logoUrl: string;
+  /** Blank means the main logo is used in the footer too. */
+  footerLogoUrl: string;
+  /** Blank means the main logo doubles as the favicon. */
+  faviconUrl: string;
+}
+
+export interface AboutPageSettings {
+  title: string;
+  subtitle: string;
+  missionStatement: string;
+  visionStatement: string;
+  /** Sanitised by the API. Blank shows the built-in company overview. */
+  storyHtml: string;
+  heroImageUrl: string;
+  stats: Array<{ value: string; label: string }>;
+}
+
+export interface ServicesPageSettings {
+  title: string;
+  subtitle: string;
+  introText: string;
+  bannerImageUrl: string;
+  /** `icon` names one of the shared icons; a card without one shows its number. */
+  servicesList: Array<{ title: string; description: string; icon?: string }>;
+}
+
+/**
+ * The headline, intro and banner are the Contact page's own. The remaining
+ * fields are overrides: blank defers to the counterpart in `contact`.
+ */
+export interface ContactPageSettings {
+  inquiryHeadline: string;
+  inquiryIntro: string;
+  bannerImageUrl: string;
+  address: string;
+  workingHours: string;
+  mapEmbedUrl: string;
+  inquiryEmail: string;
+}
+
+/** The announcement bar above the header on every public page. */
+export interface AnnouncementBanner {
+  active: boolean;
+  announcementText: string;
+  ctaLabel: string;
+  ctaLink: string;
+}
+
+export interface FooterSettings {
+  /** Follows "© <year>". Blank shows "<site name>. All rights reserved." */
+  copyrightText: string;
+  quickLinks: Array<{ label: string; href: string }>;
+}
+
 export interface SiteSettings {
+  branding: SiteBranding;
+  footer: FooterSettings;
+  aboutPage: AboutPageSettings;
+  servicesPage: ServicesPageSettings;
+  contactPage: ContactPageSettings;
+  banner: AnnouncementBanner;
   hero: {
     title: string;
     subtitle: string;
     backgroundImage: ApiImage;
     primaryCta: { label: string; href: string };
     secondaryCta: { label: string; href: string };
+    /** Crossfaded to after `backgroundImage`. Empty means a still hero. */
+    slides: ApiImage[];
   };
   values: Array<{ title: string; description: string; icon?: string }>;
   contact: {

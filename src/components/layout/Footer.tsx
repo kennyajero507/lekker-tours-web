@@ -2,18 +2,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import type { SiteSettings } from '@/types';
 import { telHref, whatsappHref, secondaryNumber } from '@/lib/format';
+import { resolveBranding, wordmark } from '@/lib/branding';
+import { isSafeHref } from '@/lib/siteContent';
 import { NewsletterForm } from './NewsletterForm';
-
-const EXPLORE = [
-  { href: '/tours', label: 'Our Safaris' },
-  { href: '/tours?category=WeekendEscape', label: 'Weekend Escapes' },
-  { href: '/destinations', label: 'Destinations' },
-  { href: '/services', label: 'Services' },
-  { href: '/blog', label: 'Journal' },
-  { href: '/about', label: 'About Us' },
-  { href: '/partners', label: 'Partnerships' },
-  { href: '/contact', label: 'Contact Us' },
-];
 
 const SOCIAL_LABELS: Record<string, string> = {
   facebook: 'Facebook',
@@ -25,6 +16,12 @@ const SOCIAL_LABELS: Record<string, string> = {
 
 export function Footer({ settings }: { settings: SiteSettings }) {
   const { contact, socials, newsletter, footerBlurb } = settings;
+  const { siteName, footerLogoUrl } = resolveBranding(settings);
+  const { primary, secondary } = wordmark(siteName);
+  const quickLinks = settings.footer.quickLinks.filter(
+    (link) => link.label && isSafeHref(link.href)
+  );
+  const copyright = settings.footer.copyrightText || `${siteName}. All rights reserved.`;
   const secondNumber = secondaryNumber(contact.phone, contact.whatsapp);
   const year = new Date().getFullYear();
   const activeSocials = Object.entries(socials ?? {}).filter(([, url]) => Boolean(url));
@@ -35,17 +32,19 @@ export function Footer({ settings }: { settings: SiteSettings }) {
         <div>
           <div className="mb-5 flex items-center gap-3">
             <Image
-              src="/logo.png"
-              alt="Lekker Tours and Travel"
+              src={footerLogoUrl}
+              alt={siteName}
               width={56}
               height={56}
               className="h-14 w-14 object-contain"
             />
             <span className="flex flex-col leading-tight">
-              <span className="font-display text-xl text-sand-50">Lekker</span>
-              <span className="text-[0.6rem] uppercase tracking-[0.28em] text-amber-400">
-                Tours &amp; Travels
-              </span>
+              <span className="font-display text-xl text-sand-50">{primary}</span>
+              {secondary ? (
+                <span className="text-[0.6rem] uppercase tracking-[0.28em] text-amber-400">
+                  {secondary}
+                </span>
+              ) : null}
             </span>
           </div>
           <p className="text-sm leading-relaxed text-sand-200/70">{footerBlurb}</p>
@@ -57,14 +56,24 @@ export function Footer({ settings }: { settings: SiteSettings }) {
         <div>
           <h3 className="mb-5 text-sm uppercase tracking-[0.2em] text-sand-50">Explore</h3>
           <ul className="space-y-3 text-sm">
-            {EXPLORE.map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className="text-sand-200/70 transition-colors hover:text-amber-400"
-                >
-                  {item.label}
-                </Link>
+            {quickLinks.map((item, i) => (
+              <li key={`${item.href}-${i}`}>
+                {/* next/link is for routes within the site; anything else is a plain anchor. */}
+                {item.href.startsWith('/') ? (
+                  <Link
+                    href={item.href}
+                    className="text-sand-200/70 transition-colors hover:text-amber-400"
+                  >
+                    {item.label}
+                  </Link>
+                ) : (
+                  <a
+                    href={item.href}
+                    className="text-sand-200/70 transition-colors hover:text-amber-400"
+                  >
+                    {item.label}
+                  </a>
+                )}
               </li>
             ))}
           </ul>
@@ -142,7 +151,7 @@ export function Footer({ settings }: { settings: SiteSettings }) {
 
       <div className="border-t border-white/10">
         <div className="container-page flex flex-col items-center justify-between gap-3 py-6 text-xs text-sand-200/50 sm:flex-row">
-          <p>© {year} Lekker Tours and Travel. All rights reserved.</p>
+          <p>© {year} {copyright}</p>
           <p>Based in Nairobi, serving East Africa.</p>
         </div>
       </div>

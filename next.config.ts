@@ -12,6 +12,9 @@ function uploadPatterns(): NonNullable<NextConfig['images']>['remotePatterns'] {
   const patterns: NonNullable<NextConfig['images']>['remotePatterns'] = [
     { protocol: 'http', hostname: 'localhost', port: '4000', pathname: '/uploads/**' },
     { protocol: 'http', hostname: '127.0.0.1', port: '4000', pathname: '/uploads/**' },
+    // The production API. Always allowed so a local database restored from
+    // production data still renders its uploaded images.
+    { protocol: 'https', hostname: 'api.lekkertours.com', port: '', pathname: '/uploads/**' },
   ];
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;

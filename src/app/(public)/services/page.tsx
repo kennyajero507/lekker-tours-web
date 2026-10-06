@@ -3,56 +3,15 @@ import { PageBanner } from '@/components/ui/PageBanner';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { ButtonLink } from '@/components/ui/Button';
 import { Reveal } from '@/components/ui/Reveal';
+import { ICONS } from '@/components/home/ValuesGrid';
 import { getSettings } from '@/lib/settings';
+import { DEFAULT_SERVICES_PAGE } from '@/lib/siteContent';
 
 export const metadata: Metadata = {
   title: 'Our Services',
   description:
     'Kenya safaris, holiday packages, custom tours, airport transfers, accommodation booking, group and corporate travel, coordinated through one dependable point of contact.',
 };
-
-/**
- * Section 03 of the company profile. Nine services, kept in the profile's own
- * order so the page and the PDF can be read side by side.
- */
-const SERVICES = [
-  {
-    title: 'Kenya Safaris',
-    body: "Tailor-made and packaged safari experiences to Kenya's leading wildlife destinations, matched to the traveller's time, interests and budget.",
-  },
-  {
-    title: 'Holiday Packages',
-    body: 'Domestic and regional holidays covering safari, beach, city, nature, family and special-occasion travel.',
-  },
-  {
-    title: 'Custom Tours & Excursions',
-    body: 'Private day trips, weekend getaways, cultural experiences, nature activities and personalised itineraries.',
-  },
-  {
-    title: 'Airport Transfers',
-    body: 'Pre-arranged airport pickup and drop-off coordination for individuals, families, groups and corporate travellers.',
-  },
-  {
-    title: 'Accommodation Booking',
-    body: 'Assistance with selecting and arranging hotels, lodges, camps and other suitable accommodation.',
-  },
-  {
-    title: 'Group Travel',
-    body: 'Travel planning for schools, churches, families, social groups, clubs, companies and other organised groups.',
-  },
-  {
-    title: 'Corporate & Business Travel',
-    body: 'Travel coordination for meetings, retreats, conferences, staff movements and business trips.',
-  },
-  {
-    title: 'Transport & Ground Logistics',
-    body: 'Coordination of suitable vehicles, drivers, transfers and ground movement according to itinerary requirements.',
-  },
-  {
-    title: 'International & Regional Travel',
-    body: 'Travel planning beyond Kenya through suitable airline, hotel and destination partners, where required.',
-  },
-];
 
 /** Section 05, who we serve. */
 const AUDIENCES = [
@@ -108,15 +67,23 @@ const PROCESS = [
 
 export default async function ServicesPage() {
   const settings = await getSettings();
+  const services = settings.servicesPage;
+
+  const bannerTitle = services.title || DEFAULT_SERVICES_PAGE.title;
+  const bannerImage = services.bannerImageUrl || DEFAULT_SERVICES_PAGE.bannerImageUrl;
 
   return (
     <>
       <PageBanner
-        title="Our Services"
-        subtitle="Tours, safaris, holidays and travel services: planned and coordinated from Nairobi."
+        title={bannerTitle}
+        subtitle={services.subtitle}
         image={{
-          url: '/images/mara-herd-safari.jpg',
-          alt: 'A safari vehicle watching a herd on the plains',
+          url: bannerImage,
+          // The stock description only fits the stock photo.
+          alt:
+            bannerImage === DEFAULT_SERVICES_PAGE.bannerImageUrl
+              ? 'A safari vehicle watching a herd on the plains'
+              : bannerTitle,
         }}
         crumbs={[
           { href: '/', label: 'Home' },
@@ -129,18 +96,25 @@ export default async function ServicesPage() {
           <SectionHeading
             eyebrow="What we do"
             title="A broad service portfolio built around leisure, group and business travel"
-            description="Whether it is a weekend safari, a family holiday, a group excursion, a beach escape, an airport transfer or a tailor-made itinerary, our goal is to be one dependable point of contact from planning to completion."
+            description={services.introText || undefined}
           />
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {SERVICES.map((service, i) => (
-              <Reveal key={service.title} delay={(i % 3) * 90}>
+            {services.servicesList.map((service, i) => (
+              <Reveal key={`${service.title}-${i}`} delay={(i % 3) * 90}>
                 <article className="h-full rounded-card border border-sand-200 bg-white p-7">
-                  <span aria-hidden className="mb-4 block font-display text-2xl text-amber-600">
-                    {String(i + 1).padStart(2, '0')}
-                  </span>
+                  {/* A card with a recognised icon shows it; otherwise its position number. */}
+                  {service.icon && ICONS[service.icon] ? (
+                    <span aria-hidden className="mb-4 block h-8 w-8 text-amber-600">
+                      {ICONS[service.icon]}
+                    </span>
+                  ) : (
+                    <span aria-hidden className="mb-4 block font-display text-2xl text-amber-600">
+                      {String(i + 1).padStart(2, '0')}
+                    </span>
+                  )}
                   <h3 className="mb-3 text-lg">{service.title}</h3>
-                  <p className="text-sm leading-relaxed text-muted">{service.body}</p>
+                  <p className="text-sm leading-relaxed text-muted">{service.description}</p>
                 </article>
               </Reveal>
             ))}

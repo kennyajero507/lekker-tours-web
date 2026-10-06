@@ -41,7 +41,7 @@ export function WhyUs({
 
           <div className="mt-6 space-y-4 text-sm leading-relaxed text-muted">
             <p>
-              Lekker Tours and Travels is a Nairobi-based company creating memorable wildlife and
+              Lekker Tours and Travel is a Nairobi-based company creating memorable wildlife and
               leisure travel experiences across Kenya, Tanzania, Uganda, Rwanda and Zanzibar. Every
               itinerary is built around the traveller’s own priorities rather than a fixed package.
             </p>

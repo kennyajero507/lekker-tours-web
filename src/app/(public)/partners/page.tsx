@@ -9,7 +9,7 @@ import { secondaryNumber } from '@/lib/format';
 export const metadata: Metadata = {
   title: 'Partnerships',
   description:
-    'Lekker Tours and Travels works with corporates, hotels and lodges, event organisers, schools and churches, international agents and transport providers on Kenya ground arrangements.',
+    'Lekker Tours and Travel works with corporates, hotels and lodges, event organisers, schools and churches, international agents and transport providers on Kenya ground arrangements.',
 };
 
 /** Section 08 of the company profile. */
@@ -89,7 +89,7 @@ export default async function PartnersPage() {
           <SectionHeading
             eyebrow="Corporate & partnership opportunities"
             title="Positioned to work alongside the wider travel trade"
-            description="Lekker Tours and Travels works with companies, institutions, hotels, event organisers, travel agents, accommodation providers and other destination partners."
+            description="Lekker Tours and Travel works with companies, institutions, hotels, event organisers, travel agents, accommodation providers and other destination partners."
           />
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -146,7 +146,7 @@ export default async function PartnersPage() {
             </h2>
             <div className="space-y-5 text-base leading-relaxed text-muted">
               <p>
-                Lekker Tours and Travels recognises that tourism depends on healthy wildlife,
+                Lekker Tours and Travel recognises that tourism depends on healthy wildlife,
                 communities, culture and natural environments. Our travel programmes are designed to
                 encourage respectful behaviour and responsible choices, including following park
                 rules, respecting wildlife distances and supporting local businesses where possible.

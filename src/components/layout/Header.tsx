@@ -5,6 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { telHref, secondaryNumber } from '@/lib/format';
+import { wordmark } from '@/lib/branding';
+import { isSafeHref } from '@/lib/siteContent';
 
 const COUNTRIES = [
   { slug: 'kenya', label: 'Kenya' },
@@ -29,8 +31,22 @@ const NAV = [
  * A detached pill that floats over the hero: inset from the viewport edges,
  * fully rounded, translucent until the page scrolls.
  */
-export function Header({ phone, whatsapp }: { phone: string; whatsapp?: string }) {
+export function Header({
+  phone,
+  whatsapp,
+  siteName,
+  logoUrl,
+  announcement,
+}: {
+  phone: string;
+  whatsapp?: string;
+  siteName: string;
+  logoUrl: string;
+  /** The admin-controlled announcement bar. Absent when switched off. */
+  announcement?: { text: string; ctaLabel: string; ctaLink: string };
+}) {
   const secondNumber = secondaryNumber(phone, whatsapp);
+  const { primary, secondary } = wordmark(siteName);
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState<string | null>(null);
@@ -72,9 +88,28 @@ export function Header({ phone, whatsapp }: { phone: string; whatsapp?: string }
   }, [menu]);
 
   const solid = scrolled || open;
+  const announcementCta =
+    announcement?.ctaLabel && isSafeHref(announcement.ctaLink) ? announcement : null;
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 px-3 pt-3 md:px-8 md:pt-6">
+      {/* Shown only at the top of the page: the header is fixed, and a bar that
+          followed the visitor all the way down would cost a line of every
+          screen for a message they have already read. */}
+      {announcement && !scrolled && !open ? (
+        <div className="mx-auto mb-2 flex w-full max-w-6xl flex-wrap items-center justify-center gap-x-3 gap-y-0.5 rounded-3xl bg-amber-500 px-5 py-1.5 text-center text-xs text-forest-950">
+          <span>{announcement.text}</span>
+          {announcementCta ? (
+            <a
+              href={announcementCta.ctaLink}
+              className="shrink-0 font-medium underline underline-offset-2 hover:no-underline"
+            >
+              {announcementCta.ctaLabel} <span aria-hidden>→</span>
+            </a>
+          ) : null}
+        </div>
+      ) : null}
+
       <div
         className={`mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 rounded-full pl-4 pr-2.5 transition-all duration-500 ease-soft md:h-[4.2rem] md:gap-8 md:pl-7 md:pr-3.5 ${
           solid
@@ -87,21 +122,23 @@ export function Header({ phone, whatsapp }: { phone: string; whatsapp?: string }
         <Link
           href="/"
           className="flex shrink-0 items-center gap-2.5"
-          aria-label="Lekker Tours and Travel, home"
+          aria-label={`${siteName}, home`}
         >
           <Image
-            src="/logo.png"
-            alt="Lekker Tours and Travel"
+            src={logoUrl}
+            alt={siteName}
             width={42}
             height={42}
             priority
             className="h-10 w-10 object-contain"
           />
           <span className="flex flex-col leading-none">
-            <span className="font-display text-[1.05rem] text-white">Lekker</span>
-            <span className="mt-0.5 text-[0.46rem] uppercase tracking-[0.24em] text-amber-400">
-              Tours &amp; Travels
-            </span>
+            <span className="font-display text-[1.05rem] text-white">{primary}</span>
+            {secondary ? (
+              <span className="mt-0.5 text-[0.46rem] uppercase tracking-[0.24em] text-amber-400">
+                {secondary}
+              </span>
+            ) : null}
           </span>
         </Link>
 

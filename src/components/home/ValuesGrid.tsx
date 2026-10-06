@@ -2,7 +2,8 @@ import { Reveal } from '@/components/ui/Reveal';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import type { SiteSettings } from '@/types';
 
-const ICONS: Record<string, React.ReactNode> = {
+/** Also offered to the service cards on /services. */
+export const ICONS: Record<string, React.ReactNode> = {
   compass: (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden>
       <circle cx="12" cy="12" r="9" />
